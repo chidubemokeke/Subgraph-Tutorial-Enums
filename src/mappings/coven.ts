@@ -160,8 +160,6 @@ export function handleTransfer(event: CovenTransferEvent): void {
   transfer.value = event.transaction.value; // Record the value of the transaction
   transfer.marketplace = getMarketplaceName(marketplace); // Retrieve the marketplace name as a string
 
-  // **Track unique marketplace interactions for 'from' and 'to' accounts**
-
   // Track unique marketplace interactions for 'from' and 'to' accounts
   if (
     !event.params.from.equals(ZERO_ADDRESS) &&
