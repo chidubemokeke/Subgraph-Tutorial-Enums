@@ -85,16 +85,23 @@ export function getMarketplaceName(marketplace: Marketplace): string {
 ## Best Practices for Using Enums
 
 - Consistent Naming: Use clear and descriptive names for enum values to enhance readability.
-- Centralized Management: Maintain enums in a single file for easier updates and management.
-- Documentation: Comment on enum definitions to provide context.
+- Centralized Management: Maintain enums in a single file for consistency. This makes enums easier to update and ensures they remain the single source of truth.
+- Documentation: Comment on enums to clarify their purpose and usage.
 
 ## Testing & Sample Queries
 
+## Enums in Queries
+
+Enums in queries improve data quality and make the results easier to interpret. They serve as both filters and response elements, ensuring consistency and reducing errors in marketplace values.
+
+- Filtering with Enums: They provide clear filters, allowing us to include or exclude specific marketplaces confidently.
+- Enums in Responses: They guarantee that only recognized marketplace names are returned, making the results standardized and trustworthy.
+
 ## Query 1: Account With The Highest NFT Marketplace Interactions
 
-This query is designed to find the account with the highest number of unique NFT marketplace interactions. It is particularly useful for analyzing an account’s activity and engagement across different marketplaces within the NFT ecosystem.
+Query 1: Account With The Highest NFT Marketplace Interactions
 
-Note on Enums: The marketplaces field in the response uses the Marketplace enum, which ensures that the marketplace values are consistent and validated against predefined categories.
+This query finds the account with the highest unique NFT marketplace interactions—perfect for analyzing cross-marketplace activity. The marketplaces field uses the Marketplace enum, ensuring consistent and validated marketplace values in the response.
 
 ```gql
 {
@@ -113,7 +120,7 @@ Note on Enums: The marketplaces field in the response uses the Marketplace enum,
 
 ## Returns
 
-The expected response includes the account details and a list of unique marketplaces interacted with, using enum values for clarity:
+This response provides account details and a list of unique marketplace interactions with enum values for standardized clarity:
 
 ```gql
 {
@@ -156,7 +163,7 @@ The expected response includes the account details and a list of unique marketpl
 
 ## Query 2: Most Active Marketplace for CryptoCoven Transactions
 
-This query identifies the marketplace with the highest volume of CryptoCoven transactions. By utilizing the Marketplace enum, this query showcases the reliability of enums for filtering by marketplace, ensuring that only valid marketplace types are returned.
+This query identifies the marketplace with the highest volume of CryptoCoven transactions. It uses the Marketplace enum to ensure only valid marketplace types appear in the response, adding reliability and consistency to your data.
 
 ```gql
 {
@@ -190,7 +197,7 @@ The expected response includes the marketplace and the corresponding transaction
 
 ## Query 3: Marketplace Interactions with High Transaction Counts
 
-This query retrieves the top four marketplaces that have more than 100 transactions, excluding any labeled as "Unknown." Using enums as filters, this query ensures that only valid marketplaces are considered.
+This query retrieves the top four marketplaces with over 100 transactions, excluding "Unknown" marketplaces. Using enums as filters ensures that only valid marketplace types are included, increasing accuracy.
 
 ```gql
 {
@@ -208,7 +215,7 @@ This query retrieves the top four marketplaces that have more than 100 transacti
 
 ## Result 3
 
-The expected response includes the marketplaces that meet the criteria, clearly represented as enum values:
+Expected output includes the marketplaces meeting the criteria, each represented by an enum value:
 
 ```gql
 {
