@@ -37,8 +37,7 @@ export function getOrCreateAccount(address: Bytes): Account {
     account.totalSpent = BIGINT_ZERO; // Initialize the total spent amount to 0 (BigInt type)
     account.sendCount = BIGINT_ZERO; // Initialize the count of NFTs sent to 0
     account.receiveCount = BIGINT_ZERO; // Initialize the count of NFTs received to 0
-    account.mintCount = BIGINT_ZERO; // Initialize the count of NFTs minted to 0
-    account.burnCount = BIGINT_ZERO; // Initialize the count of NFTs minted to 0
+    account.nftCount = BIGINT_ZERO;
     account.uniqueMarketplacesCount = BIGINT_ZERO; // Initialize the count of market places interacted with
     account.txHash = Bytes.empty();
 

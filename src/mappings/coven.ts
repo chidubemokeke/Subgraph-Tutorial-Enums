@@ -21,6 +21,7 @@ import {
   NFTX,
   GENIE_SWAP,
   CRYPTO_COVEN,
+  BIGINT_ZERO,
 } from "../utils/consts";
 
 // Import helper functions that manage account creation and marketplace identification
@@ -73,25 +74,24 @@ export function handleTransfer(event: CovenTransferEvent): void {
     ? toAccount.totalSpent.plus(event.transaction.value)
     : event.transaction.value;
 
-  /**
-   * Handle minting events, where the 'from' address is the zero address.
-   * When an NFT is minted, increment the covenMintCount for the 'to' account.
-   */
-  if (event.params.from.equals(ZERO_ADDRESS)) {
-    toAccount.mintCount = toAccount.mintCount
-      ? toAccount.mintCount.plus(BIGINT_ONE)
+  // If this is not a minting or burning transaction, handle it as a transfer.
+  if (
+    !event.params.from.equals(ZERO_ADDRESS) &&
+    !event.params.to.equals(ZERO_ADDRESS)
+  ) {
+    // Decrease nftCount by 1 for the 'from' account, making sure it doesn’t go below zero.
+    fromAccount.nftCount = fromAccount.nftCount
+      ? fromAccount.nftCount.minus(BIGINT_ONE)
+      : BIGINT_ZERO;
+
+    // Increase nftCount by 1 for the 'to' account, initializing to 1 if it's the first transfer.
+    toAccount.nftCount = toAccount.nftCount
+      ? toAccount.nftCount.plus(BIGINT_ONE)
       : BIGINT_ONE;
   }
 
-  /**
-   * Handle burning events, where the 'to' address is the zero address.
-   * When an NFT is burned, increment the covenBurnCount for the 'from' account.
-   */
-  if (event.params.to.equals(ZERO_ADDRESS)) {
-    fromAccount.burnCount = fromAccount.burnCount
-      ? fromAccount.burnCount.plus(BIGINT_ONE)
-      : BIGINT_ONE;
-  }
+  fromAccount.save(); // Save the updated 'from' account
+  toAccount.save(); // Save the updated 'to' account
 
   /**
    * Create a new Transfer entity to log the details of this specific transfer.
@@ -111,8 +111,8 @@ export function handleTransfer(event: CovenTransferEvent): void {
   // **Determine the Marketplace**
 
   /**Please note that this method is a simplifaction and only works for EOAs (User Wallet Addresses) directly interacting with the marketplace contracts.
-   If a smart account or another contract interacts in this instance, the marketplace not be visible here. 
-   To catch those edge cases, use transaction receipts and logs.**/
+     If a smart account or another contract interacts in this instance, the marketplace not be visible here. 
+     To catch those edge cases, use transaction receipts and logs.**/
 
   let sender: Address | null = event.transaction.to; // Transaction 'to' address (potential marketplace contract address)
   let receiver: Address | null = event.transaction.from; // Transaction 'from' address (if the sender doesn't match)
@@ -160,61 +160,63 @@ export function handleTransfer(event: CovenTransferEvent): void {
   transfer.value = event.transaction.value; // Record the value of the transaction
   transfer.marketplace = getMarketplaceName(marketplace); // Retrieve the marketplace name as a string
 
-  // Save the Transfer entity to the store for tracking transfers
-  transfer.save();
-
   // **Track unique marketplace interactions for 'from' and 'to' accounts**
 
-  // Ensure the sender and receiver are not the zero address
+  // Track unique marketplace interactions for 'from' and 'to' accounts
   if (
     !event.params.from.equals(ZERO_ADDRESS) &&
     !event.params.to.equals(ZERO_ADDRESS)
   ) {
-    // Handle marketplace interaction for the 'from' account
+    // **From Account Marketplace Interaction**
     let fromMarketplaceInteractionId =
-      fromAccount.id + "-" + marketplace.toString(); // Unique ID for the marketplace interaction
-
-    // Load the interaction if it exists for the 'from' account
+      fromAccount.id + "-" + marketplace.toString();
     let fromInteraction = MarketplaceInteraction.load(
       fromMarketplaceInteractionId
     );
 
     if (fromInteraction == null) {
-      // If this is the first time interacting with this marketplace
+      // First interaction with this marketplace for 'from' account
       fromInteraction = new MarketplaceInteraction(
         fromMarketplaceInteractionId
-      ); // Create new interaction entity
-      fromInteraction.account = fromAccount.id; // Set the associated account
-      fromInteraction.marketplace = getMarketplaceName(marketplace); // Set the marketplace name
-      fromInteraction.save(); // Save the new interaction entity
-
-      // Update the unique marketplace count for the 'from' account
+      );
+      fromInteraction.account = fromAccount.id;
+      fromInteraction.marketplace = getMarketplaceName(marketplace);
+      fromInteraction.transactionCount = BIGINT_ONE; // Initialize transaction count
       fromAccount.uniqueMarketplacesCount =
-        fromAccount.uniqueMarketplacesCount.plus(BIGINT_ONE); // Increment the count
+        fromAccount.uniqueMarketplacesCount.plus(BIGINT_ONE);
+    } else {
+      // Increment transaction count if interaction already exists
+      fromInteraction.transactionCount =
+        fromInteraction.transactionCount.plus(BIGINT_ONE);
     }
+    fromInteraction.save(); // Save the updated interaction for 'from' account
 
-    // Handle marketplace interaction for the 'to' account
+    // **To Account Marketplace Interaction**
     let toMarketplaceInteractionId =
-      toAccount.id + "-" + marketplace.toString(); // Unique ID for the marketplace interaction
-
-    // Load the interaction if it exists for the 'to' account
+      toAccount.id + "-" + marketplace.toString();
     let toInteraction = MarketplaceInteraction.load(toMarketplaceInteractionId);
 
     if (toInteraction == null) {
-      // If this is the first time interacting with this marketplace
-      toInteraction = new MarketplaceInteraction(toMarketplaceInteractionId); // Create new interaction entity
-      toInteraction.account = toAccount.id; // Set the associated account
-      toInteraction.marketplace = getMarketplaceName(marketplace); // Set the marketplace name
-      toInteraction.save(); // Save the new interaction entity
-
-      // Update the unique marketplace count for the 'to' account
+      // First interaction with this marketplace for 'to' account
+      toInteraction = new MarketplaceInteraction(toMarketplaceInteractionId);
+      toInteraction.account = toAccount.id;
+      toInteraction.marketplace = getMarketplaceName(marketplace);
+      toInteraction.transactionCount = BIGINT_ONE; // Initialize transaction count
       toAccount.uniqueMarketplacesCount =
-        toAccount.uniqueMarketplacesCount.plus(BIGINT_ONE); // Increment the count
+        toAccount.uniqueMarketplacesCount.plus(BIGINT_ONE);
+    } else {
+      // Increment transaction count if interaction already exists
+      toInteraction.transactionCount =
+        toInteraction.transactionCount.plus(BIGINT_ONE);
     }
+    toInteraction.save(); // Save the updated interaction for 'to' account
 
-    // Save the updated accounts with the unique marketplace count
-    fromAccount.save(); // Save the updated 'from' account
-    toAccount.save(); // Save the updated 'to' account
+    // Save updated account data
+    fromAccount.save();
+    toAccount.save();
+
+    // Save updated transfer data
+    transfer.save();
   } else {
     log.info(
       "Skipping marketplace interaction tracking for zero address transfers: {}",

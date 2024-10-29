@@ -35,11 +35,8 @@ type Account @entity {
   "Number of coven transfer events received by the account"
   receiveCount: BigInt!
 
-  "Number of coven tokens minted (if applicable)"
-  mintCount: BigInt!
-
-  "Number of coven tokens burned (if applicable)"
-  burnCount: BigInt!
+  "Count of unique NFTs owned by the account"
+  nftCount: BigInt!
 
   "Field to track thenumber of unique marketplaces interacted with"
   uniqueMarketplacesCount: BigInt!
@@ -71,12 +68,6 @@ type CovenTransfer @entity {
   "The transaction value, if applicable"
   value: BigInt!
 
-  # The number of times an NFT has been burned
-  # burnCount: BigInt! # Uncomment if needed in future logic
-
-  # The number of times the NFT has been minted
-  # mintCount: BigInt! # Uncomment if needed in future logic
-
   "Index of the log within the transaction for tracking"
   logIndex: BigInt!
 
@@ -93,4 +84,7 @@ type MarketplaceInteraction @entity {
 
   "The name of the marketplace"
   marketplace: String!
+
+  "The count of transactions the account has on this marketplace"
+  transactionCount: BigInt!
 }
