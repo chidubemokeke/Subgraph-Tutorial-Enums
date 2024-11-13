@@ -1,12 +1,12 @@
 # Using Enums for Your Subgraphs
 
-This repository demonstrates the effectiveness of enums by exploring the CryptoCoven NFT smart contract. It showcases how you can extract detailed information from transactions and marketplace interactions, helping to manage data more effectively within your subgraph.
+This repository demonstrates the effectiveness of enums by exploring the CryptoCoven NFT smart contract. It showcases how you can extract detailed information from transactions and marketplace interactions, helping you manage data more effectively within your subgraph.
 
 ## Objectives
 
-- Understand the role of enums in categorizing NFT marketplaces.
-- Learn how to implement enums in your subgraph schema.
-- Explore examples of querying data using enums for enhanced clarity and maintainability.
+- Make your code cleaner and less error-prone by using enums.
+- Understand how enums help categorize NFT marketplaces efficiently.
+- See how enums improve clarity and maintainability in your subgraph schema and queries.
 
 ## Why Use Enums?
 
@@ -16,7 +16,7 @@ Enums play a critical role in categorizing and managing data in your subgraphs. 
 
 - Clarity: Enums provide meaningful names for values, making the data easier to understand.
 - Validation: Enums enforce strict value definitions, preventing invalid data entries.
-- Maintainability: When you need to change or add new categories, enums allow you to do this in a centralized manner.
+- Maintainability: When you need to change or add new categories, enums allow you to do this centrally.
 
 ## Defining Enums
 
